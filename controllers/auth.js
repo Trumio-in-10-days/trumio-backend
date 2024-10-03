@@ -26,6 +26,7 @@ exports.studentSignUp = async (req, res) => {
     await student.save();
 
     const token = jwt.sign({ id: student._id, role: 'student' }, JWT_SECRET, { expiresIn: '24h' });
+    // res.cookie('authToken', token, { maxAge: '24h', httpOnly: true }); 
 
     res.status(201).json({ token });
   } catch (err) {
@@ -51,6 +52,7 @@ exports.studentSignIn = async (req, res) => {
     }
 
     const token = jwt.sign({ id: student._id, role: 'student' }, JWT_SECRET, { expiresIn: '24h' });
+    // res.cookie('authToken', token, { maxAge: 86400000, httpOnly: true, secure:false });
 
     res.json({ token });
   } catch (err) {
@@ -76,6 +78,7 @@ exports.adminSignUp = async (req, res) => {
     await admin.save();
 
     const token = jwt.sign({ id: admin._id, role: 'admin' }, JWT_SECRET, { expiresIn: '24h' });
+    // res.cookie('authToken', token, { maxAge: '24h', httpOnly: true });
 
     res.status(201).json({ token });
   } catch (err) {
@@ -102,6 +105,7 @@ exports.adminSignIn = async (req, res) => {
 
     // Generate JWT token
     const token = jwt.sign({ id: admin._id, role: 'admin' }, JWT_SECRET, { expiresIn: '24h' });
+    // res.cookie('authToken', token, { maxAge: '24h', httpOnly: true });
 
     res.json({ token });
   } catch (err) {
