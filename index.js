@@ -7,6 +7,7 @@ const {authenticate} = require("./middleware");
 const authRoutes = require('./routes/auth');
 const courseRoutes = require('./routes/course');
 const studentRoutes = require('./routes/student');
+const projectRoutes = require('./routes/project');
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(cookieParser());
 app.use(authRoutes);
 app.use( courseRoutes);
 app.use( studentRoutes);
+app.use(projectRoutes);
 
 const connectDB = async () => {
   try {
