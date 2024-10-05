@@ -106,3 +106,28 @@ exports.getAllStudents = async (req, res) => {
     }
   }
 
+  exports.changeAlumni = async(req, res) => {
+    try {
+        const {token, alumni} = req.body;
+        jwt.verify(token, JWT_SECRET, async (err, decodedToken) => {
+          console.log(decodedToken);
+          if (err) {
+            console.log(err);
+            return res.status(401).json({ message: "Not authorized" })
+          } else {  
+            req.id = decodedToken.id;
+          }
+        })
+        const student = await Student.findByIdAndUpdate(req.id, {
+          isAlumni: alumni,
+        });
+
+        await student.save();
+        console.log(student, alumni);
+
+    res.status(200).json({ student });
+    } catch (err) {
+      res.status(500).json({ msg: 'Server error' });
+    }
+  }
+

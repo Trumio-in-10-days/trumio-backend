@@ -22,7 +22,7 @@ const projectSchema = new mongoose.Schema({
   assignedStudents: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Student',
-    validate: [arrayLimit, 'A project must have exactly 2 students'],
+    // validate: [arrayLimit, 'A project can not have more than 2 students'],
   }],
   assignedBy: {
     type: mongoose.Schema.Types.ObjectId,
@@ -35,7 +35,7 @@ const projectSchema = new mongoose.Schema({
 });
 
 function arrayLimit(val) {
-  return val.length === 2;
+  return val.length <= 2;
 }
 
 const Project = mongoose.model('Project', projectSchema);
