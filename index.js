@@ -8,7 +8,7 @@ const authRoutes = require('./routes/auth');
 const courseRoutes = require('./routes/course');
 const studentRoutes = require('./routes/student');
 const projectRoutes = require('./routes/project');
-
+const applicationRoutes = require('./routes/application');
 dotenv.config();
 
 const app = express();
@@ -20,7 +20,7 @@ app.use(authRoutes);
 app.use( courseRoutes);
 app.use( studentRoutes);
 app.use(projectRoutes);
-
+app.use(applicationRoutes);
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI, {
@@ -40,7 +40,7 @@ app.get('/', (req, res) => {
 });
 
 // Start the server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

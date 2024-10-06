@@ -84,6 +84,18 @@ exports.getAllStudents = async (req, res) => {
     }
   };
 
+  exports.getStudentById = async (req, res) => {
+    try {
+       
+  
+         
+        let student = await Student.findById(req.id);
+        console.log(student);
+    res.status(201).json({ student });
+    } catch (err) {
+      res.status(500).json({ msg: 'Server error' });
+    }
+  };
   exports.updateSkill = async(req, res) => {
     try {
         const {skill, id, action} = req.body;

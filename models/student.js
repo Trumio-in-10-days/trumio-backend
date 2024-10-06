@@ -24,7 +24,12 @@ const studentSchema = new mongoose.Schema({
   }],
   projects:[{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Project', 
+    ref: 'Project',
+    
+  },
+  {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Application'    
   }],
   registrationDate: {
     type: Date,

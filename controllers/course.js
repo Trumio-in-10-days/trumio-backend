@@ -6,8 +6,8 @@ const Admin = require('../models/admin');
 const Course = require('../models/course');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-
-const JWT_SECRET = 'yourSecretKey';
+  
+const JWT_SECRET = 'yourSecretKey'; 
 
 exports.uploadCourse = async (req, res) => {
   try {

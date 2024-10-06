@@ -15,10 +15,12 @@ const projectSchema = new mongoose.Schema({
     required: true,
     default: [],
   },
-  applicants:[{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Student',
-  }],
+  applicants: [
+    {
+      student: { type: mongoose.Schema.Types.ObjectId, ref: 'Student' },
+      application: { type: mongoose.Schema.Types.ObjectId, ref: 'Application' }
+    }
+],
   assignedStudents: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Student',
@@ -32,6 +34,11 @@ const projectSchema = new mongoose.Schema({
     type: Date,
     default: Date.now, 
   },
+  expectedDeadline: {
+    type: Date,
+     required:true
+    
+  }
 });
 
 function arrayLimit(val) {
