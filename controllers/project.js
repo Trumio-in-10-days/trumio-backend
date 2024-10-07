@@ -7,7 +7,8 @@ const Project = require("../models/project");
 const Admin = require("../models/admin");
 const Course = require("../models/course");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-
+const Application =require("../models/application");
+ 
 const JWT_SECRET = "yourSecretKey";
 
 exports.addProject = async (req, res) => {
@@ -62,7 +63,7 @@ exports.getProjects = async (req, res) => {
     const projects = await Project.find({
       assignedBy: mongoose.Types.ObjectId.createFromHexString(req.id),
     });
-
+   
     return res.status(200).json({ projects });
   } catch (err) {
     console.log(err);
@@ -81,8 +82,7 @@ exports.getAllOpenProjects = async (req, res) => {
         (prj.assignedStudents.length == 1 &&
           prj.assignedStudents[0].isAlumni === true)
     );
-    // await reqProjects.populate('assignedBy');
-
+    
  return   res.status(200).json({ reqProjects });
   } catch (err) {
     return  res.status(500).json({ msg: "Server error" });
@@ -128,7 +128,9 @@ exports.applyProject = async (req, res) => {
     if (!student) {
       return res.status(404).json({ message: "Student not found" });
     }
-
+    const application = await Application.findById(application_id);
+    application.status = "approved";
+    application.save();
     // Push the student and application into the assignedStudents array in the project
     project.assignedStudents.push({
       student: student_id,
@@ -143,9 +145,9 @@ exports.applyProject = async (req, res) => {
 
     // Remove the student from the applicants array in the project
     project.applicants = project.applicants.filter(
-      (applicant) =>applicant.student&& applicant.student.toString() !== student_id.toString()
+      (applicant) => applicant.student && applicant.student.toString() !== student_id.toString()
     );
-
+    
     // Save the updated project and student data
     await project.save();
     await student.save();
@@ -156,30 +158,47 @@ exports.applyProject = async (req, res) => {
     return res.status(500).json({ msg: "Server error" });
   }
 };
-exports.getAppliedProjecs = async (req, res) => {
+exports.getAppliedAndAssignedProjects = async (req, res) => {
   try {
     const { token } = req.body;
 
-    // console.log(project);
+    // Verify JWT token
     jwt.verify(token, JWT_SECRET, (err, decodedToken) => {
-      // console.log(decodedToken);
       if (err) {
-        console.log(err);
         return res.status(401).json({ message: "Not authorized" });
       } else {
         req.id = decodedToken.id;
       }
     });
-    const projects = await Project.find({
-      applicants: { $in: [req.id] },
-    }).populate("assignedBy");
 
-     return res.status(200).json({ projects });
+    // Fetch projects where the student is either in the applicants or assignedStudents array
+    const projects = await Project.find({
+      $or: [
+        { 'applicants.student': req.id },        // Applied projects
+        { 'assignedStudents.student': req.id }   // Assigned projects
+      ]
+    }).populate('assignedBy');
+
+    // Filter out the applied and assigned projects
+    const appliedProjects = projects.filter(project =>
+      project.applicants.some(applicant => applicant.student.toString() === req.id)
+    );
+
+    const assignedProjects = projects.filter(project =>
+      project.assignedStudents.some(student => student.student.toString() === req.id)
+    );
+
+    return res.status(200).json({
+      appliedProjects,
+      assignedProjects
+    });
+    
   } catch (err) {
     console.log(err);
     return res.status(500).json({ msg: "Server error" });
   }
 };
+
 
 exports.selectStudentsforProject = async (req, res) => {
   try {
