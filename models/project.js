@@ -21,11 +21,12 @@ const projectSchema = new mongoose.Schema({
       application: { type: mongoose.Schema.Types.ObjectId, ref: 'Application' }
     }
 ],
-  assignedStudents: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Student',
-    // validate: [arrayLimit, 'A project can not have more than 2 students'],
-  }],
+  assignedStudents: [
+    {
+      student: { type: mongoose.Schema.Types.ObjectId, ref: 'Student' },
+      application: { type: mongoose.Schema.Types.ObjectId, ref: 'Application' }
+    }
+],
   assignedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Admin',

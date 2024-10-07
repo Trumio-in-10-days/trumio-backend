@@ -40,9 +40,9 @@ exports.addProject = async (req, res) => {
     });
     console.log(project);
     await project.save();
-    res.status(200).json({ project });
+  return  res.status(200).json({ project });
   } catch (err) {
-    res.status(500).json({ msg: "Server error" });
+   return res.status(500).json({ msg: "Server error" });
   }
 };
 
@@ -57,16 +57,16 @@ exports.getProjects = async (req, res) => {
       } else {
         req.id = decodedToken.id;
       }
-    });
+    }); 
 
     const projects = await Project.find({
       assignedBy: mongoose.Types.ObjectId.createFromHexString(req.id),
     });
 
-    res.status(200).json({ projects });
+    return res.status(200).json({ projects });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ msg: "Server error" });
+  return   res.status(500).json({ msg: "Server error" });
   }
 };
 
@@ -83,9 +83,9 @@ exports.getAllOpenProjects = async (req, res) => {
     );
     // await reqProjects.populate('assignedBy');
 
-    res.status(200).json({ reqProjects });
+ return   res.status(200).json({ reqProjects });
   } catch (err) {
-    res.status(500).json({ msg: "Server error" });
+    return  res.status(500).json({ msg: "Server error" });
   }
 };
 
@@ -98,37 +98,64 @@ exports.getProjectById = async (req, res) => {
       .populate("applicants");
      
 
-    res.status(200).json({ project });
+   return res.status(200).json({ project });
   } catch (err) {
-    res.status(500).json({ msg: "Server error" });
+    return res.status(500).json({ msg: "Server error" });
   }
 };
 
 exports.applyProject = async (req, res) => {
   try {
-    const { projectId, token } = req.body;
+    const { projectId, token, student_id, application_id } = req.body;
+
+    // Find the project by projectId
     const project = await Project.findById(projectId);
-    // console.log(project);
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    // Verify the JWT token
     jwt.verify(token, JWT_SECRET, (err, decodedToken) => {
-      // console.log(decodedToken);
       if (err) {
-        console.log(err);
         return res.status(401).json({ message: "Not authorized" });
       } else {
         req.id = decodedToken.id;
       }
     });
-    project.applicants.push(
-      mongoose.Types.ObjectId.createFromHexString(req.id)
+
+    // Find the student by ID
+    const student = await Student.findById(student_id);
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    // Push the student and application into the assignedStudents array in the project
+    project.assignedStudents.push({
+      student: student_id,
+      application: application_id,
+    });
+  
+    // Push the project and application ID into the student's projects array
+    student.projects.push({
+      project: projectId,
+      application: application_id,
+    });
+
+    // Remove the student from the applicants array in the project
+    project.applicants = project.applicants.filter(
+      (applicant) =>applicant.student&& applicant.student.toString() !== student_id.toString()
     );
+
+    // Save the updated project and student data
     await project.save();
-    res.status(200).json({ project });
+    await student.save();
+
+    return res.status(200).json({ message: "Student assigned to project successfully", project });
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ msg: "Server error" });
+    console.error(err);
+    return res.status(500).json({ msg: "Server error" });
   }
 };
-
 exports.getAppliedProjecs = async (req, res) => {
   try {
     const { token } = req.body;
@@ -147,10 +174,10 @@ exports.getAppliedProjecs = async (req, res) => {
       applicants: { $in: [req.id] },
     }).populate("assignedBy");
 
-    res.status(200).json({ projects });
+     return res.status(200).json({ projects });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ msg: "Server error" });
+    return res.status(500).json({ msg: "Server error" });
   }
 };
 
@@ -178,9 +205,9 @@ exports.selectStudentsforProject = async (req, res) => {
       res.status(403).json({ msg: "Not possible" });
     }
 
-    res.status(200).json({ student });
+   return  res.status(200).json({ student });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ msg: "Server error" });
+   return  res.status(500).json({ msg: "Server error" });
   }
 };

@@ -7,7 +7,7 @@ const Admin = require('../models/admin');
 const JWT_SECRET = 'yourSecretKey';
 
 exports.studentSignUp = async (req, res) => {
-  try {
+  try { 
     const { name, email, password, alumni } = req.body;
     // console.log(req.body);
 

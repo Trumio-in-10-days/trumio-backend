@@ -6,8 +6,8 @@ const { addApplication, getApplication } = require('../controllers/applicaton');
 
 // Define the POST route for adding an application
 router.post('/applications', addApplication);
-
-// Define the GET route for fetching an application by ID
-router.get('/applications/:id', getApplication);
-
+ 
+// Define the Post route for fetching an application by ID
+router.post('/getapplication', getApplication);
+ 
 module.exports = router;

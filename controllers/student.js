@@ -55,7 +55,6 @@ exports.getAllStudents = async (req, res) => {
     try {
   
       const students = await Student.find({isAlumni:false});
-  
       res.status(201).json({ students });
     } catch (err) {
       res.status(500).json({ msg: 'Server error' });
@@ -88,9 +87,12 @@ exports.getAllStudents = async (req, res) => {
     try {
        
   
-         
-        let student = await Student.findById(req.id);
-        console.log(student);
+      console.log(req.body.id);
+        let student = await Student.findById(req.body.id);
+      console.log(student);
+      if (!student) {
+        return res.status(404).json({msg: "Student Not Found"});
+      }
     res.status(201).json({ student });
     } catch (err) {
       res.status(500).json({ msg: 'Server error' });

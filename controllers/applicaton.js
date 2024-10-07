@@ -71,7 +71,7 @@ exports.addApplication = async (req, res) => {
 };
 exports.getApplication = async (req, res) => {
     try {
-      const { application_id, token } = req.body;
+      const { application_id } = req.body;
   
       // Verify JWT token
        

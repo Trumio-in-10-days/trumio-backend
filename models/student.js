@@ -22,15 +22,12 @@ const studentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Course', // assuming you have a Course model
   }],
-  projects:[{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Project',
-    
-  },
-  {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Application'    
-  }],
+  projects:[
+    {
+      project: { type: mongoose.Schema.Types.ObjectId, ref: 'Project' },
+      application: { type: mongoose.Schema.Types.ObjectId, ref: 'Application' }
+    }
+],
   registrationDate: {
     type: Date,
     default: Date.now,
