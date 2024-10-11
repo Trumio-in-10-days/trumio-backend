@@ -76,49 +76,51 @@ exports.completeCourse = async (req, res) => {
   };
 
 
-exports.getAllCourses = async (req, res) => {
-  try {
-    const { UDUMY_CLIENT_ID, UDUMY_CLIENT_SECRET } = process.env;
-
-    if (!UDUMY_CLIENT_ID || !UDUMY_CLIENT_SECRET) {
-      console.error('Udemy API credentials are missing.');
-      return res.status(500).json({ msg: 'Server error: Missing API credentials.' });
-    }
-
-    const credentials = Buffer.from(`${UDUMY_CLIENT_ID}:${UDUMY_CLIENT_SECRET}`).toString('base64');
-
-    const response = await axios.get('https://www.udemy.com/api-2.0/courses/', {
-      params: {
-        search: 'React, Node.js, Javascript',
-        page: 1,
-        page_size: 50
-      },
-      headers: {
-        'Authorization': `Basic ${credentials}`,
-        'Accept': 'application/json',
+  exports.getAllCourses = async (req, res) => {
+    try {
+      const { UDUMY_CLIENT_ID, UDUMY_CLIENT_SECRET } = process.env;
+      const { searchQuery } = req.body;
+  
+      if (!UDUMY_CLIENT_ID || !UDUMY_CLIENT_SECRET) {
+        console.error('Udemy API credentials are missing.');
+        return res.status(500).json({ msg: 'Server error: Missing API credentials.' });
       }
-    });
-
-    const formattedCourses = response.data.results.map(course => ({
-      title: course.title,
-      id: course.id,
-      description: course.headline,
-      courseLink: `https://www.udemy.com${course.url}`,
-      skills: course.visible_instructors[0]?.job_title?.split(',') || [],
-      uploadedDate: new Date(),
-      price: course.price,
-      instructor: course.visible_instructors[0]?.display_name || 'Unknown',
-      image: course.image_240x135,
-      language: course.locale?.english_title || 'Unknown'
-    }));
-
-    console.log("Fetched Courses:", formattedCourses);
-    res.json(formattedCourses);
-  } catch (err) {
-    console.error('Error fetching courses:', err.response ? err.response.data : err.message);
-    res.status(500).json({ msg: 'Server error' });
-  }
-};
+  
+      const credentials = Buffer.from(`${UDUMY_CLIENT_ID}:${UDUMY_CLIENT_SECRET}`).toString('base64');
+  
+      const response = await axios.get('https://www.udemy.com/api-2.0/courses/', {
+        params: {
+          search: searchQuery,
+          page: 1,
+          page_size: 50
+        },
+        headers: {
+          'Authorization': `Basic ${credentials}`,
+          'Accept': 'application/json',
+        }
+      });
+  
+      const formattedCourses = response.data.results.map(course => ({
+        title: course.title,
+        id: course.id,
+        description: course.headline,
+        courseLink: `https://www.udemy.com${course.url}`,
+        skills: course.visible_instructors[0]?.job_title?.split(',') || [],
+        uploadedDate: new Date(),
+        price: course.price,
+        instructor: course.visible_instructors[0]?.display_name || 'Unknown',
+        image: course.image_240x135,
+        language: course.locale?.english_title || 'Unknown'
+      }));
+  
+      console.log("Fetched Courses:", formattedCourses);
+      res.json(formattedCourses);
+    } catch (err) {
+      console.error('Error fetching courses:', err.response ? err.response.data : err.message);
+      res.status(500).json({ msg: 'Server error' });
+    }
+  };
+  
 
 exports.findSkillfromIssue = async(req, res) => {
     try {
