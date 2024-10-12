@@ -78,10 +78,8 @@ exports.getAllOpenProjects = async (req, res) => {
       .populate("assignedBy");
     const reqProjects = projects.filter(
       (prj) =>
-        prj.assignedStudents.length == 0 ||
-        (prj.assignedStudents.length == 1 &&
-          prj.assignedStudents[0].isAlumni === true)
-    );
+        prj.assignedStudents.length <2)
+     
     
  return   res.status(200).json({ reqProjects });
   } catch (err) {
@@ -228,5 +226,78 @@ exports.selectStudentsforProject = async (req, res) => {
   } catch (err) {
     console.log(err);
    return  res.status(500).json({ msg: "Server error" });
+  }
+};
+exports.updateProjectProgress = async (req, res) => {
+  try {
+    const { projectId, token, weekNumber, progressDescription } = req.body;
+
+    // Verify JWT token
+    jwt.verify(token, JWT_SECRET, async (err, decodedToken) => {
+      if (err) {
+        return res.status(401).json({ message: "Not authorized" });
+      } else {
+        req.id = decodedToken.id;
+
+        // Find the project by ID
+        const project = await Project.findById(projectId);
+        if (!project) {
+          return res.status(404).json({ message: "Project not found" });
+        }
+
+        // Check if the student is assigned to the project
+        const isAssigned = project.assignedStudents.some(
+          (student) => student.student.toString() === req.id
+        );
+        if (!isAssigned) {
+          return res.status(403).json({ message: "Not assigned to this project" });
+        }
+
+        // Ensure the progress array exists
+        if (!project.progress) {
+          project.progress = [];
+        }
+
+        // Find the last progress entry
+        const lastProgressEntry = project.progress[project.progress.length - 1];
+
+        // If there is a last entry, check for any missed weeks
+        if (lastProgressEntry) {
+          const lastWeekNumber = lastProgressEntry.weekNumber;
+
+          // Identify missed weeks
+          for (let week = lastWeekNumber + 1; week < weekNumber; week++) {
+            project.progress.push({
+              weekNumber: week,
+              progressDescription: "No progress",
+            });
+          }
+        }
+
+        // Check if the progress for the current week already exists
+        const existingProgress = project.progress.find(
+          (progress) => progress.weekNumber === weekNumber
+        );
+
+        if (existingProgress) {
+          // Update existing progress entry
+          existingProgress.progressDescription = progressDescription;
+        } else {
+          // Add new progress entry
+          project.progress.push({
+            weekNumber,
+            progressDescription,
+          });
+        }
+
+        // Save the updated project
+        await project.save();
+
+        return res.status(200).json({ message: "Progress updated successfully", project });
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ msg: "Server error" });
   }
 };

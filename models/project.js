@@ -20,13 +20,13 @@ const projectSchema = new mongoose.Schema({
       student: { type: mongoose.Schema.Types.ObjectId, ref: 'Student' },
       application: { type: mongoose.Schema.Types.ObjectId, ref: 'Application' }
     }
-],
+  ],
   assignedStudents: [
     {
       student: { type: mongoose.Schema.Types.ObjectId, ref: 'Student' },
       application: { type: mongoose.Schema.Types.ObjectId, ref: 'Application' }
     }
-],
+  ],
   assignedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Admin',
@@ -37,14 +37,22 @@ const projectSchema = new mongoose.Schema({
   },
   expectedDeadline: {
     type: Date,
-     required:true
-    
-  }
+    required: true
+  },
+  progress: [
+    {
+      weekNumber: {
+        type: Number,
+        required: true
+      },
+      progressDescription: {
+        type: String,
+        required: true,
+        trim: true
+      }
+    }
+  ]
 });
-
-function arrayLimit(val) {
-  return val.length <= 2;
-}
 
 const Project = mongoose.model('Project', projectSchema);
 
