@@ -36,6 +36,10 @@ const ApplicationSchema = new mongoose.Schema({
       progressDescription: { type: String, required: true }
     }
   ],
+  bidAmount: {
+    type: String
+    
+  }, 
   status: {
     type: String,
     enum: ['pending', 'approved', 'rejected'],

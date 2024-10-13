@@ -168,7 +168,7 @@ exports.getAppliedAndAssignedProjects = async (req, res) => {
         req.id = decodedToken.id;
       }
     });
-
+    console.log(req.id);
     // Fetch projects where the student is either in the applicants or assignedStudents array
     const projects = await Project.find({
       $or: [
@@ -179,11 +179,11 @@ exports.getAppliedAndAssignedProjects = async (req, res) => {
 
     // Filter out the applied and assigned projects
     const appliedProjects = projects.filter(project =>
-      project.applicants.some(applicant => applicant.student.toString() === req.id)
+      project.applicants.some(applicant => (applicant.student&&applicant.student.toString() === req.id))
     );
 
     const assignedProjects = projects.filter(project =>
-      project.assignedStudents.some(student => student.student.toString() === req.id)
+      project.assignedStudents.some(student => (student.student&&student.student.toString() === req.id))
     );
 
     return res.status(200).json({

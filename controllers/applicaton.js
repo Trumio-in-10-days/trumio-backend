@@ -7,7 +7,7 @@ const JWT_SECRET = 'yourSecretKey';
 const Project =require('../models/project');
 exports.addApplication = async (req, res) => {
   try {
-    const { projectId, projectTitle, projectDescription, startDate, expectedDeadline, weeklyProgress, token, assignedBy, contactNumber } = req.body;
+    const { projectId, projectTitle, projectDescription, startDate, expectedDeadline, weeklyProgress, token, assignedBy, contactNumber,bidAmount } = req.body;
 
     jwt.verify(token, JWT_SECRET, async (err, decodedToken) => {
       if (err) {
@@ -37,7 +37,8 @@ exports.addApplication = async (req, res) => {
           expectedDeadline,
           weeklyProgress,
           assignedBy,
-          contactNumber
+          contactNumber,
+          bidAmount
         });
 
         // Save the application
